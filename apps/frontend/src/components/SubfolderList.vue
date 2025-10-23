@@ -10,7 +10,8 @@
       <li
         v-for="sub in subfolders"
         :key="sub.id"
-        class="flex items-center gap-2 py-1"
+        class="flex items-center gap-2 py-1 cursor-pointer rounded hover:bg-gray-100"
+        @click="open(sub)"
       >
         <span>📁</span>
         <span>{{ sub.name }}</span>
@@ -29,6 +30,10 @@ const props = defineProps<{
   selectedFolder: Folder | null;
 }>();
 
+const emit = defineEmits<{
+  (e: "open", folder: Folder): void;
+}>();
+
 const subfolders = ref<Folder[]>([]);
 const loading = ref(false);
 
@@ -37,12 +42,20 @@ watch(
   async (folder) => {
     if (!folder) {
       subfolders.value = [];
+      loading.value = false;
       return;
     }
     loading.value = true;
-    subfolders.value = await fetchSubfolders(folder.id);
-    loading.value = false;
+    try {
+      subfolders.value = await fetchSubfolders(folder.id);
+    } finally {
+      loading.value = false;
+    }
   },
   { immediate: true }
 );
+
+function open(folder: Folder) {
+  emit("open", folder);
+}
 </script>

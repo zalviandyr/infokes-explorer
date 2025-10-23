@@ -29,6 +29,28 @@ export const folderRoutes = new Elysia({ prefix: "/folders" })
     return { data: tree };
   })
 
+  .get(
+    "/:id/subfolders",
+    async ({ params, set }) => {
+      const parentId = Number.parseInt(params.id, 10);
+      if (Number.isNaN(parentId)) {
+        set.status = 400;
+        return { success: false, message: "Invalid folder id" };
+      }
+
+      const result = await db.query.folders.findMany({
+        where: (folder, { eq }) => eq(folder.parentId, parentId),
+      });
+
+      return { data: result };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+    }
+  )
+
   .post(
     "/",
     async ({ body }) => {
