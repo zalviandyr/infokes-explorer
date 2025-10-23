@@ -17,6 +17,7 @@
       <SubfolderList
         :selected-folder="selectedFolder"
         @open="handleOpenFromList"
+        @created="handleCreated"
       />
     </div>
   </div>
@@ -53,6 +54,11 @@ function handleOpenFromList(folder: Folder) {
   ensureExpandedFor(folder.id);
   const existing = findFolderById(tree.value, folder.id);
   selectedFolder.value = existing ?? folder;
+}
+
+async function handleCreated(folder: Folder) {
+  await loadTree();
+  ensureExpandedFor(folder.id);
 }
 
 function toggleFolder(id: number) {
