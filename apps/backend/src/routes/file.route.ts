@@ -10,6 +10,28 @@ export const fileRoutes = new Elysia({ prefix: "/files" })
     return { data: result };
   })
 
+  .get(
+    "/folder/:id",
+    async ({ params, set }) => {
+      const folderId = Number.parseInt(params.id, 10);
+      if (Number.isNaN(folderId)) {
+        set.status = 400;
+        return { success: false, message: "Invalid folder id" };
+      }
+
+      const result = await db.query.files.findMany({
+        where: (file, { eq }) => eq(file.folderId, folderId),
+      });
+
+      return { data: result };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+    }
+  )
+
   .post(
     "/",
     async ({ body }) => {

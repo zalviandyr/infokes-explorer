@@ -5,6 +5,13 @@ export interface Folder {
   children?: Folder[];
 }
 
+export interface ExplorerFile {
+  id: number;
+  name: string;
+  folderId: number | null;
+  createdAt: string;
+}
+
 const API_BASE = (import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "/api") + "/v1";
 
 export async function fetchFolderTree(): Promise<Folder[]> {
@@ -15,6 +22,12 @@ export async function fetchFolderTree(): Promise<Folder[]> {
 
 export async function fetchSubfolders(parentId: number): Promise<Folder[]> {
   const res = await fetch(`${API_BASE}/folders/${parentId}/subfolders`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function fetchFiles(folderId: number): Promise<ExplorerFile[]> {
+  const res = await fetch(`${API_BASE}/files/folder/${folderId}`);
   const json = await res.json();
   return json.data;
 }
