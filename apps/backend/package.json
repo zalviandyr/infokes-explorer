@@ -3,15 +3,21 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "db:migrate": "drizzle-kit push --config drizzle.config.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@electric-sql/pglite": "^0.3.11",
+    "@types/bun": "latest",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.5"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "elysia": "^1.4.13"
+    "drizzle-orm": "^0.44.6",
+    "elysia": "^1.4.13",
+    "postgres": "^3.4.7"
   }
 }
