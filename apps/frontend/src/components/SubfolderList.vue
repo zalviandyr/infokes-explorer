@@ -81,12 +81,10 @@
 import { ref, watch } from "vue";
 import {
   fetchSubfolders,
-  fetchFiles,
   createFolder,
-  createFile,
   type Folder,
-  type ExplorerFile,
 } from "../api/folders";
+import { createFile, fetchFiles, type ExplorerFile } from "../api/files";
 
 const props = defineProps<{
   selectedFolder: Folder | null;
