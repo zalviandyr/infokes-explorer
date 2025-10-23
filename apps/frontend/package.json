@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
@@ -14,14 +15,16 @@
     "vue": "^3.5.22"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/vue": "^8.1.0",
     "@types/node": "^24.6.0",
     "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
+    "jsdom": "^27.0.1",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@7.1.14",
+    "vite": "^5.4.11",
+    "vitest": "^4.0.1",
     "vue-tsc": "^3.1.0"
-  },
-  "overrides": {
-    "vite": "npm:rolldown-vite@7.1.14"
   }
 }

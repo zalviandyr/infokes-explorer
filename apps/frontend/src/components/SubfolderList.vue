@@ -4,7 +4,11 @@
       Subfolders of "{{ selectedFolder?.name ?? '—' }}"
     </h2>
 
-    <form class="flex items-center gap-2 mb-4" @submit.prevent="submitFolder">
+    <form
+      data-testid="new-folder-form"
+      class="flex items-center gap-2 mb-4"
+      @submit.prevent="submitFolder"
+    >
       <input
         v-model="folderName"
         type="text"
@@ -22,7 +26,11 @@
 
     <p v-if="folderError" class="text-sm text-red-600 mb-2">{{ folderError }}</p>
 
-    <form class="flex items-center gap-2 mb-4" @submit.prevent="submitFile">
+    <form
+      data-testid="new-file-form"
+      class="flex items-center gap-2 mb-4"
+      @submit.prevent="submitFile"
+    >
       <input
         v-model="fileName"
         type="text"
