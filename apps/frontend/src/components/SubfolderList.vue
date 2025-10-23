@@ -79,12 +79,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import {
-  fetchSubfolders,
-  createFolder,
-  type Folder,
-} from "../api/folders";
-import { createFile, fetchFiles, type ExplorerFile } from "../api/files";
+import { folderService, type Folder } from "../services/folderService";
+import { fileService, type ExplorerFile } from "../services/fileService";
 
 const props = defineProps<{
   selectedFolder: Folder | null;
@@ -121,8 +117,8 @@ watch(
     loading.value = true;
     try {
       const [subfolderData, fileData] = await Promise.all([
-        fetchSubfolders(folder.id),
-        fetchFiles(folder.id),
+        folderService.getSubfolders(folder.id),
+        fileService.getByFolder(folder.id),
       ]);
       subfolders.value = subfolderData;
       files.value = fileData;
@@ -147,7 +143,7 @@ async function submitFolder() {
   creatingFolder.value = true;
   folderError.value = "";
   try {
-    const created = await createFolder({
+    const created = await folderService.createFolder({
       name: trimmed,
       parentId: props.selectedFolder?.id ?? null,
     });
@@ -170,7 +166,10 @@ async function submitFile() {
   creatingFile.value = true;
   fileError.value = "";
   try {
-    const created = await createFile({ name: trimmed, folderId: parentId });
+    const created = await fileService.createFile({
+      name: trimmed,
+      folderId: parentId,
+    });
     fileName.value = "";
     files.value = [...files.value, created];
   } catch (err) {

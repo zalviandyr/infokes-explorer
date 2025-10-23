@@ -1,31 +1,16 @@
 import { t } from "elysia";
 import { Elysia } from "elysia";
-import { db } from "../db/connection";
-import { folders } from "../db/schema/folders";
+import { folderService } from "../services/folder.service";
 
 export const folderRoutes = new Elysia({ prefix: "/folders" })
 
   .get("/", async () => {
-    const result = await db.select().from(folders);
+    const result = await folderService.list();
     return { data: result };
   })
 
   .get("/tree", async () => {
-    const all = await db.select().from(folders);
-    type FolderRow = typeof folders.$inferSelect;
-    type FolderNode = FolderRow & { children: FolderNode[] };
-
-    const buildTree = (parentId: FolderRow["parentId"]): FolderNode[] =>
-      all
-        .filter((f) => f.parentId === parentId)
-        .map(
-          (f): FolderNode => ({
-            ...f,
-            children: buildTree(f.id),
-          })
-        );
-
-    const tree = buildTree(null);
+    const tree = await folderService.tree();
     return { data: tree };
   })
 
@@ -38,9 +23,7 @@ export const folderRoutes = new Elysia({ prefix: "/folders" })
         return { success: false, message: "Invalid folder id" };
       }
 
-      const result = await db.query.folders.findMany({
-        where: (folder, { eq }) => eq(folder.parentId, parentId),
-      });
+      const result = await folderService.subfolders(parentId);
 
       return { data: result };
     },
@@ -54,10 +37,10 @@ export const folderRoutes = new Elysia({ prefix: "/folders" })
   .post(
     "/",
     async ({ body }) => {
-      const [inserted] = await db
-        .insert(folders)
-        .values({ name: body.name, parentId: body.parentId ?? null })
-        .returning();
+      const inserted = await folderService.create(
+        body.name,
+        body.parentId ?? null,
+      );
       return { success: true, data: inserted };
     },
     {

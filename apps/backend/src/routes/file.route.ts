@@ -1,12 +1,11 @@
 import { t } from "elysia";
 import { Elysia } from "elysia";
-import { db } from "../db/connection";
-import { files } from "../db/schema/files";
+import { fileService } from "../services/file.service";
 
 export const fileRoutes = new Elysia({ prefix: "/files" })
 
   .get("/", async () => {
-    const result = await db.select().from(files);
+    const result = await fileService.list();
     return { data: result };
   })
 
@@ -19,9 +18,7 @@ export const fileRoutes = new Elysia({ prefix: "/files" })
         return { success: false, message: "Invalid folder id" };
       }
 
-      const result = await db.query.files.findMany({
-        where: (file, { eq }) => eq(file.folderId, folderId),
-      });
+      const result = await fileService.byFolder(folderId);
 
       return { data: result };
     },
@@ -35,10 +32,7 @@ export const fileRoutes = new Elysia({ prefix: "/files" })
   .post(
     "/",
     async ({ body }) => {
-      const [inserted] = await db
-        .insert(files)
-        .values({ name: body.name, folderId: body.folderId ?? null })
-        .returning();
+      const inserted = await fileService.create(body.name, body.folderId);
       return { success: true, data: inserted };
     },
     {

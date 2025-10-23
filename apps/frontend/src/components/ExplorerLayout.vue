@@ -25,16 +25,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { fetchFolderTree, type Folder } from "../api/folders";
 import SubfolderList from "./SubfolderList.vue";
 import FolderTree from "./FolderTree.vue";
+import { folderService, type Folder } from "../services/folderService";
 
 const tree = ref<Folder[]>([]);
 const selectedFolder = ref<Folder | null>(null);
 const expandedIds = ref<number[]>([]);
 
 async function loadTree() {
-  tree.value = await fetchFolderTree();
+  tree.value = await folderService.getTree();
   const currentId = selectedFolder.value?.id;
   if (currentId != null) {
     const refreshed = findFolderById(tree.value, currentId);
