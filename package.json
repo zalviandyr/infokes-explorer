@@ -1,11 +1,9 @@
 {
   "name": "infokes-explorer",
-  "module": "index.ts",
   "type": "module",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
     "dev": "turbo run dev --parallel",
