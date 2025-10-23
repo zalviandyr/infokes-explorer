@@ -4,9 +4,9 @@
       Subfolders of "{{ selectedFolder?.name ?? '—' }}"
     </h2>
 
-    <form class="flex items-center gap-2 mb-4" @submit.prevent="submit">
+    <form class="flex items-center gap-2 mb-4" @submit.prevent="submitFolder">
       <input
-        v-model="name"
+        v-model="folderName"
         type="text"
         placeholder="New folder name"
         class="flex-1 border border-gray-300 rounded px-2 py-1"
@@ -14,13 +14,31 @@
       <button
         type="submit"
         class="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
-        :disabled="!name.trim() || creating"
+        :disabled="!folderName.trim() || creatingFolder"
       >
-        {{ creating ? "Adding..." : "Add" }}
+        {{ creatingFolder ? "Adding..." : "Add" }}
       </button>
     </form>
 
-    <p v-if="error" class="text-sm text-red-600 mb-2">{{ error }}</p>
+    <p v-if="folderError" class="text-sm text-red-600 mb-2">{{ folderError }}</p>
+
+    <form class="flex items-center gap-2 mb-4" @submit.prevent="submitFile">
+      <input
+        v-model="fileName"
+        type="text"
+        placeholder="New file name"
+        class="flex-1 border border-gray-300 rounded px-2 py-1"
+      />
+      <button
+        type="submit"
+        class="bg-green-600 text-white px-3 py-1 rounded disabled:opacity-50"
+        :disabled="!fileName.trim() || creatingFile"
+      >
+        {{ creatingFile ? "Adding..." : "Add File" }}
+      </button>
+    </form>
+
+    <p v-if="fileError" class="text-sm text-red-600 mb-2">{{ fileError }}</p>
 
     <div v-if="loading" class="text-gray-500">Loading...</div>
 
@@ -65,6 +83,7 @@ import {
   fetchSubfolders,
   fetchFiles,
   createFolder,
+  createFile,
   type Folder,
   type ExplorerFile,
 } from "../api/folders";
@@ -81,9 +100,12 @@ const emit = defineEmits<{
 const subfolders = ref<Folder[]>([]);
 const files = ref<ExplorerFile[]>([]);
 const loading = ref(false);
-const creating = ref(false);
-const name = ref("");
-const error = ref("");
+const creatingFolder = ref(false);
+const folderName = ref("");
+const folderError = ref("");
+const creatingFile = ref(false);
+const fileName = ref("");
+const fileError = ref("");
 
 watch(
   () => props.selectedFolder,
@@ -92,8 +114,10 @@ watch(
       subfolders.value = [];
       files.value = [];
       loading.value = false;
-      name.value = "";
-      error.value = "";
+      folderName.value = "";
+      folderError.value = "";
+      fileName.value = "";
+      fileError.value = "";
       return;
     }
     loading.value = true;
@@ -107,8 +131,10 @@ watch(
     } finally {
       loading.value = false;
     }
-    name.value = "";
-    error.value = "";
+    folderName.value = "";
+    folderError.value = "";
+    fileName.value = "";
+    fileError.value = "";
   },
   { immediate: true }
 );
@@ -117,25 +143,43 @@ function open(folder: Folder) {
   emit("open", folder);
 }
 
-async function submit() {
-  const trimmed = name.value.trim();
-  if (!trimmed || creating.value) return;
-  creating.value = true;
-  error.value = "";
+async function submitFolder() {
+  const trimmed = folderName.value.trim();
+  if (!trimmed || creatingFolder.value) return;
+  creatingFolder.value = true;
+  folderError.value = "";
   try {
     const created = await createFolder({
       name: trimmed,
       parentId: props.selectedFolder?.id ?? null,
     });
-    name.value = "";
+    folderName.value = "";
     subfolders.value = [...subfolders.value, created];
     emit("created", created);
     emit("open", created);
   } catch (err) {
-    error.value =
+    folderError.value =
       err instanceof Error ? err.message : "Failed to create folder";
   } finally {
-    creating.value = false;
+    creatingFolder.value = false;
+  }
+}
+
+async function submitFile() {
+  const trimmed = fileName.value.trim();
+  const parentId = props.selectedFolder?.id;
+  if (!trimmed || creatingFile.value || parentId == null) return;
+  creatingFile.value = true;
+  fileError.value = "";
+  try {
+    const created = await createFile({ name: trimmed, folderId: parentId });
+    fileName.value = "";
+    files.value = [...files.value, created];
+  } catch (err) {
+    fileError.value =
+      err instanceof Error ? err.message : "Failed to create file";
+  } finally {
+    creatingFile.value = false;
   }
 }
 </script>
