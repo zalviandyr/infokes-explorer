@@ -1,4 +1,7 @@
-import { folderRepository } from "../repositories/folder.repository";
+import {
+  folderRepository,
+  type FolderRepository,
+} from "../repositories/folder.repository";
 import { folders } from "../db/schema/folders";
 
 type FolderRow = typeof folders.$inferSelect;
@@ -12,19 +15,23 @@ const buildTree = (nodes: FolderRow[], parentId: number | null): FolderTreeNode[
       children: buildTree(nodes, node.id),
     }));
 
-export const folderService = {
-  list: () => folderRepository.findAll(),
+export const createFolderService = (
+  repo: FolderRepository = folderRepository,
+) => ({
+  list: () => repo.findAll(),
 
   tree: async (): Promise<FolderTreeNode[]> => {
-    const all = await folderRepository.findAll();
+    const all = await repo.findAll();
     return buildTree(all, null);
   },
 
-  subfolders: (parentId: number) => folderRepository.findSubfolders(parentId),
+  subfolders: (parentId: number) => repo.findSubfolders(parentId),
 
   create: (name: string, parentId: number | null) =>
-    folderRepository.create({
+    repo.create({
       name,
       parentId,
     }),
-};
+});
+
+export const folderService = createFolderService();

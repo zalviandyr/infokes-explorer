@@ -1,13 +1,20 @@
-import { fileRepository } from "../repositories/file.repository";
+import {
+  fileRepository,
+  type FileRepository,
+} from "../repositories/file.repository";
 
-export const fileService = {
-  list: () => fileRepository.findAll(),
+export const createFileService = (
+  repo: FileRepository = fileRepository,
+) => ({
+  list: () => repo.findAll(),
 
-  byFolder: (folderId: number) => fileRepository.findByFolderId(folderId),
+  byFolder: (folderId: number) => repo.findByFolderId(folderId),
 
   create: (name: string, folderId: number) =>
-    fileRepository.create({
+    repo.create({
       name,
       folderId,
     }),
-};
+});
+
+export const fileService = createFileService();
